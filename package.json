@@ -1,0 +1,23 @@
+{
+  "name": "routeplus",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/morrelinko/routeplus.git"
+  },
+  "keywords": [
+    "route",
+    "express"
+  ],
+  "author": "Laju Morrison <morrelinko@gmail.com> (http://morrelinko.com)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/morrelinko/routeplus/issues"
+  },
+  "homepage": "https://github.com/morrelinko/routeplus#readme"
+}
