@@ -1,6 +1,6 @@
 {
   "name": "routeplus",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -19,5 +19,13 @@
   "bugs": {
     "url": "https://github.com/morrelinko/routeplus/issues"
   },
-  "homepage": "https://github.com/morrelinko/routeplus#readme"
+  "homepage": "https://github.com/morrelinko/routeplus#readme",
+  "devDependencies": {
+    "express": "^4.13.4",
+    "mocha": "^2.5.3",
+    "should": "^9.0.0"
+  },
+  "dependencies": {
+    "methods": "^1.1.2"
+  }
 }
