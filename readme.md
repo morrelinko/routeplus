@@ -1,5 +1,6 @@
-RoutePlus
----------------------
+# routeplus
+
+[![NPM version](https://img.shields.io/npm/v/routeplus.svg)](https://www.npmjs.com/package/routeplus)
 
 Express Routes ++
 
