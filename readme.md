@@ -28,11 +28,11 @@ let router = rp.adapt(express.Router());
 
 router.get('/', function(req, res) {
   res.send('Welcome');
-}).name('home');
+}).as('home');
 
 router.get('/u/:username', function(req, res) {
   res.send('User profile');
-}).name('profile');
+}).as('profile');
 ```
 
 Ability to regenerate urls from route names anywhere in app
@@ -59,7 +59,7 @@ let router = rp.adapt(express.Router());
 
 router.get('/about', function(req, res) {
   res.send('Welcome');
-}).name('about');
+}).as('about');
 
 router.mount(app, '/user'); // equivalent to doing app.use('/user', router);
 ```
