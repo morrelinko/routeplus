@@ -45,13 +45,13 @@ rp.url('profile', {username: 'morrelinko'}); // outputs
 
 ### Mounted Routers
 
-When you mount an express Router using `app.use('/path', router)`
+When you mount an express.Router (mini app) using `app.use('/path', router)`
 
 It does so in a fashion that the `router` is unable to access the path you mounted it to.
 
-So normally routes generated for mounted routers won't include `/path`.
+Side effect been that urls generated for mounted routers won't include the mounted path `/path`.
 
-Routeplus provides support for mounted routes (mini apps) using a different syntax.
+Routeplus provides a workaround for this using a `router.mount()` syntax.
 
 ```js
 let app = express();
@@ -64,7 +64,7 @@ router.get('/about', function(req, res) {
 router.mount(app, '/user'); // equivalent to doing app.use('/user', router);
 ```
 
-Now when you try to generate url for `home` route, instead of just returning `/about` you get `/user/about`
+Now when you try to generate url for `about` route, instead of just returning `/about` you get `/user/about`
 
 ### Controller Builder
 
