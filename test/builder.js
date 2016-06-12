@@ -8,16 +8,6 @@ let noop = () => undefined;
 let middlewareFn = (req, res, next) => next();
 
 describe('Builder', function () {
-  describe('register()', function () {
-    it('should register a custom build implementation', function () {
-      rp.builder.register('web', noop);
-
-      should.ok(rp.builder._builders);
-      should(rp.builder._builders).have.property('web');
-      should.ok(rp.builder.web);
-    });
-  });
-
   describe('middleware()', function () {
     it('should register named middleware', function () {
       rp.builder.middleware('test', noop);
