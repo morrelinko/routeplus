@@ -83,11 +83,10 @@ app.get('/dashboard', rp.builder(handlerFn)
 ```js
 // define a named middleware
 rp.builder.middleware('loggedIn', function () {
-  this.middleware(ensureLoggedIn({
+  this.use(ensureLoggedIn({
     redirectTo: urlify.web('login'),
     setReturnTo: true
   }), 0);
-
   return this;
 });
 
@@ -122,30 +121,28 @@ $ npm install
 $ npm test
 ```
 
-## TODO
+#### Composable middlewares
 
-#### Implement composable middlewares
+Using the controller builder method above, you could create a 
 
-This will allow creating a middleware composed of multiple middlewares.
+middleware composed of other middlewares eliminating the bootstrap 
 
-Will help reduce boilerplate for attaching same amount of middlewares for 
+code of having to define similar amount of middlewares across
 
-multiple routes. Proposed API Below
+multiple routes like so:-
 
 ```js
 // Define 
-rp.builder.compose('web', function() {
+rp.builder.middleware('web', function() {
     this.use(connectFlash());
     this.use(trottleRequest());
     this.use(handleModelErrors(), 100);
     this.use(handleExceptions(), 100);
+    return this;
 });
 
 // Using
-app.get('/dashboard', rp.builder(handlerFn)
-  .include('web')
-  .include('another')
-  .build());
+app.get('/dashboard', rp.builder(handlerFn).web().build());
 ```
 
 ## Contribution
