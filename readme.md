@@ -37,7 +37,7 @@ Ability to regenerate urls from route names anywhere in app
 ```js
 rp.url('home'); // outputs "/"
 
-rp.url('profile', {username: 'morrelinko'}); // outputs 
+rp.url('profile', {username: 'morrelinko'}); // outputs  /u/morrelinko
 ```
 
 ### Mounted Routers
