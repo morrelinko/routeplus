@@ -4,13 +4,9 @@
 
 Express Routes ++
 
-[Nothing Here: WIP]
-
 ## Installation
 
     npm install routeplus
-
-## Features & Usage
 
 ### Named Routes
 
@@ -69,55 +65,24 @@ Now when you try to generate url for `about` route, instead of just returning `/
 
 ### Controller Builder
 
-##### Note: API not implemented. Below is the documentation of how it supposedly should look like
+Routeplus bundles a controller builder that provides a fluent api for
 
-Routeplus comes with a controller builder that provides a 
+building controllers with features like middleware organization, 
 
-fluent api for configuring each controllers for a specific route. 
-
-The controller builder comes with its own middleware stack organization 
-
-and allows you to move middlewares up and down the stack. Meaning you 
-
-can define exactly position of a middleware in your execution stack.
+named and composable middlewares. API Below...
 
 ```js
-// api
-
-app.get('/dashboard', rp.builder(function(req, res) {
-    res.send('Welcome user');
-  })
-  .middleware(ensureLoggedIn(), 10)
-  .build());
+app.get('/dashboard', rp.builder(handlerFn)
+    .use(ensureLoggedIn())
+    .namedMiddleware()
+    .build());
 ```
 
-With support for inline middleware
+#### Named MiddleWares
 
 ```js
-let controller = rp.builder(function(req, res) {
-    res.send('Welcome user');
-  })
-  .middleware(function(req, res, next) {
-      console.log('Executed after main controller');
-      next();
-  }), 60)
-  .build();
-
-// use generated controller
-app.get('/dashboard', controller);
-
-```
-
-## Controller Builder Named Middlewares
-
-Routeplus also allows you to define named middlewares 
-
-and call them directly with its custom name.
-
-```js
-// middlewares/loggedIn.js
-
-rp.builder.extend('loggedIn', function () {
+// define a named middleware
+rp.builder.middleware('loggedIn', function () {
   this.middleware(ensureLoggedIn({
     redirectTo: urlify.web('login'),
     setReturnTo: true
@@ -126,26 +91,67 @@ rp.builder.extend('loggedIn', function () {
   return this;
 });
 
-// index.js
-
-require('./middlewares/loggedIn');
-
-let controller = rp.builder(function(req, res) {
-    res.send('Welcome user');
-  })
+// Use middleware named (loggedIn)
+app.get('/dashboard', rp.builder(handlerFn)
   .loggedIn()
-  .build();
+  .build());
+```
 
-// use generated controller
-app.get('/dashboard', controller);
+## API
+
+#### adapt()
+
+#### url()
+
+#### routes()
+
+#### clear()
+
+#### builder
+
+#### builder.register()
+
+#### builder.
+
+## Testing
+
+Clone the repository from github and run the commands below
+
+```bash
+$ npm install 
+$ npm test
+```
+
+## TODO
+
+#### Implement composable middlewares
+
+This will allow creating a middleware composed of multiple middlewares.
+
+Will help reduce boilerplate for attaching same amount of middlewares for 
+
+multiple routes. Proposed API Below
+
+```js
+// Define 
+rp.builder.compose('web', function() {
+    this.use(connectFlash());
+    this.use(trottleRequest());
+    this.use(handleModelErrors(), 100);
+    this.use(handleExceptions(), 100);
+});
+
+// Using
+app.get('/dashboard', rp.builder(handlerFn)
+  .include('web')
+  .include('another')
+  .build());
 ```
 
 ## Contribution
 
-Contribute
+View list of all contributors [Here](https://github.com/morrelinko/routeplus/contributors)
 
 ## Credits 
 
 Author & Contributor: Laju Morrison <morrelinko@gmail.com>
-
-Contributor: [Some contributor name]
