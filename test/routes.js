@@ -1,115 +1,132 @@
 'use strict';
 
-let express = require('express');
-let mocha = require('mocha');
-let should = require('should');
-let rp = require('../');
-let Route = require('../lib/route');
+const express = require('express')
+const mocha = require('mocha')
+const should = require('should')
+const Route = require('../lib/route')
+const Router = require('../lib/router')
+const rp = require('../')
 
-let noop = () => {
-};
+let noop = (() => {})
 
-describe('routeplus', function () {
-  describe('adapt()', function () {
+describe('RoutePlus', function () {
+  describe('router()', function () {
 
-    it('should adapt express app', function () {
-      let adapted = rp.adapt(express());
+    it('creates router from express()', function () {
+      let router = rp.router(express())
 
-      should.ok(adapted);
-    });
+      should.ok(router)
+    })
 
-    it('should adapt express Router', function () {
-      let router = express.Router();
-      let adapted = rp.adapt(router);
+    it('creates router from express.Router()', function () {
+      let adapted = rp.router(express.Router())
 
-      should.ok(adapted);
-    });
+      should.ok(adapted)
+    })
 
-    it('should return a Route() instance when calling route methods', function () {
-      let router = rp.adapt(express.Router());
-      let home = router.get('/', noop);
+    it('returns a Route() instance when calling route methods', function () {
+      let router = rp.router(express.Router())
+      let home = router.get('/dashboard', noop)
 
-      should(home).be.instanceOf(Route);
-      should(home.getName()).equal(null);
-      should(home.getPath()).equal('/');
-    });
+      should(home).be.instanceOf(Route)
+      should(home.getName()).not.empty
+      should(home.getPath()).equal('/dashboard')
+    })
 
-  });
+  })
 
   describe('url()', function () {
-    beforeEach(() => rp.clear());
+    beforeEach(() => rp.clear())
+    afterEach(() => (rp.config.baseUrl = null))
 
-    it('should generate url for plain routes', function () {
-      let router = rp.adapt(express.Router());
-      router.get('/login', noop).as('login');
-      router.get('/page/about', noop).as('about');
+    it('generates url for plain routes', function () {
+      let router = rp.router(express.Router())
 
-      should(rp.url('login')).equal('/login');
-      should(rp.url('about')).equal('/page/about');
-    });
+      router.get('/login', noop).as('login')
+      router.get('/page/about', noop).as('about')
+
+      should(rp.url('login')).equal('/login')
+      should(rp.url('about')).equal('/page/about')
+    })
+
+    it('returns route name for invalid route in silent mode', function () {
+      should(rp.url('profile', {}, {mode: 'silent'})).equal('/profile')
+    })
+
+    it('throws error for invalid route in strict mode', function () {
+      should(() => {
+        rp.url('profile', {}, {mode: 'strict'})
+      }).throw(Error, {message: 'Undefined route name [profile]'})
+    })
 
     it('should genereate url for routes with named parameters', function () {
-      let router = rp.adapt(express.Router());
-      router.get('/user/:username', noop).as('profile');
+      let router = rp.router(express.Router())
+      router.get('/user/:username', noop).as('profile')
 
-      should(rp.url('profile', {username: 'morrelinko'})).equal('/user/morrelinko');
-      should(rp.url('profile', {username: 'john'})).equal('/user/john');
-    });
+      should(rp.url('profile', {username: 'morrelinko'})).equal('/user/morrelinko')
+      should(rp.url('profile', {username: 'john'})).equal('/user/john')
+    })
 
     it('should prepend a baseUrl if specified in options', function () {
-      let router = rp.adapt(express.Router());
-      router.get('/user/:username', noop).as('profile');
+      rp.config.baseUrl = 'https://sample.com'
 
-      let url = rp.url('profile', {username: 'morrelinko'}, {baseUrl: 'http://example.com'});
-      should(url).equal('http://example.com/user/morrelinko');
-    });
+      let router = rp.router(express.Router())
 
-    it('should return route name for invalid route when the silent option set to true', function () {
-      should(rp.url('profile', {}, {silent: true})).equal('/profile');
-    });
+      router.get('/user/:username', noop).as('profile')
 
-    it('should throw error for invalid route when the silent option set to false', function () {
-      should(() => {
-        rp.url('profile', {}, {silent: false})
-      }).throw(Error, {message: 'Undefined route name [profile]'});
-    });
-  });
+      should(rp.url('profile', {username: 'morrelinko'}))
+        .equal('https://sample.com/user/morrelinko')
+
+      should(rp.url('profile', {username: 'morrelinko'}, {baseUrl: 'http://example.com'}))
+        .equal('http://example.com/user/morrelinko')
+    })
+  })
 
   describe('mount()', function () {
     beforeEach(() => rp.clear());
 
-    it('should generate url without mounted path using app.use() ', function () {
-      let app = express();
-      let router = rp.adapt(express.Router());
-      router.get('/settings', noop).as('setting');
-      app.use('/user', router);
+    it('generates url without mounted path using express app.use() ', function () {
+      let app = express()
+      let router = rp.router(express.Router())
 
-      should(rp.url('setting')).equal('/settings');
-    });
+      router.get('/settings', noop).as('setting')
+      console.log(rp.url('setting'))
+      
+      // router.getRouter() returns original express.Router()
+      // instance passed to rp.roter(...)
+      app.use('/user', router.mount())
 
-    it('should generate url prepended with mounted path using router.mount() ', function () {
-      let app = express();
-      let router = rp.adapt(express.Router());
-      router.get('/settings', noop).as('setting');
-      router.mount(app, '/user');
+      should(rp.url('setting')).equal('/settings')
+    })
 
-      should(rp.url('setting')).equal('/user/settings');
-    });
-  });
+    it('generates url prepended with mounted path using "prefix" Option ', function () {
+      let app = express()
+      let router = rp.router(express.Router(), {
+        prefix: '/user'
+      })
+
+      router.get('/settings', noop).as('setting')
+
+      app.use('/user', router.mount())
+      
+      should(rp.url('setting')).equal('/user/settings')
+    })
+  })
 
   describe('clear()', function () {
-    beforeEach(() => rp.clear());
+    beforeEach(() => rp.clear())
 
-    it('should clear route list', function() {
-      let router = rp.adapt(express.Router());
-      router.get('/', noop).as('home');
-      router.get('/about', noop).as('about');
+    it('clears route table', function() {
+      let router = rp.router(express.Router())
 
-      should(rp.routes()).be.lengthOf(2);
+      router.get('/', noop).as('home')
+      router.get('/about', noop).as('about')
 
-      rp.clear();
-      should(rp.routes()).be.empty();
-    });
-  });
+      should(rp.routeTable()).be.lengthOf(2)
+
+      rp.clear()
+
+      should(rp.routeTable()).be.empty()
+    })
+  })
 })
-;
