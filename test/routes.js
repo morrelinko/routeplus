@@ -37,7 +37,10 @@ describe('RoutePlus', function () {
 
   describe('url()', function () {
     beforeEach(() => rp.clear())
-    afterEach(() => (rp.config.baseUrl = null))
+    afterEach(() => {
+      rp.config.hostname = null
+      rp.config.secure = false
+    })
 
     it('generates url for plain routes', function () {
       let router = rp.router(express.Router())
@@ -68,7 +71,8 @@ describe('RoutePlus', function () {
     })
 
     it('should prepend a baseUrl if specified in options', function () {
-      rp.config.baseUrl = 'https://sample.com'
+      rp.config.secure = true
+      rp.config.hostname = 'sample.com'
 
       let router = rp.router(express.Router())
 
@@ -77,7 +81,10 @@ describe('RoutePlus', function () {
       should(rp.url('profile', {username: 'morrelinko'}))
         .equal('https://sample.com/user/morrelinko')
 
-      should(rp.url('profile', {username: 'morrelinko'}, {baseUrl: 'http://example.com'}))
+      should(rp.url('profile', {username: 'morrelinko'}, {hostname: 'example.com'}))
+        .equal('https://example.com/user/morrelinko')
+
+      should(rp.url('profile', {username: 'morrelinko'}, {secure: false, hostname: 'example.com'}))
         .equal('http://example.com/user/morrelinko')
     })
   })
